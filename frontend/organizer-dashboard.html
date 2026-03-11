@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organizer Dashboard – DarshanEase</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="mesh-bg"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand" onclick="window.location='index.html'" style="cursor:pointer;">
+      <div class="logo-icon">🛕</div>
+      <span>Darshan<span class="gradient-text">Ease</span></span>
+    </div>
+    <div class="navbar-actions">
+      <span id="userNameBadge" class="badge badge-info" style="font-size:0.85rem;padding:6px 14px;"></span>
+      <button onclick="doLogout()" class="btn btn-ghost btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div style="display:flex;gap:0;">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div style="padding:8px 16px;font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Organizer Portal</div>
+        <ul class="sidebar-nav">
+          <li><a href="#" class="active" onclick="showSection('overview')"><span class="icon">📊</span>Overview</a></li>
+          <li><a href="#" onclick="showSection('temples')"><span class="icon">🛕</span>My Temples</a></li>
+          <li><a href="#" onclick="showSection('slots')"><span class="icon">🕐</span>Manage Slots</a></li>
+          <li><a href="#" onclick="showSection('bookings')"><span class="icon">🎫</span>Bookings</a></li>
+          <li><a href="index.html"><span class="icon">🏠</span>View Site</a></li>
+        </ul>
+      </div>
+
+      <!-- Main -->
+      <div class="dashboard-main" style="flex:1;">
+        <!-- Overview -->
+        <div id="section-overview" class="dashboard-section">
+          <div class="dashboard-header">
+            <h1>Organizer Dashboard</h1>
+            <p>Welcome back! Manage your temples and darshan slots.</p>
+          </div>
+          <div class="grid-4 mb-4" id="orgStats">
+            <div class="stat-card"><div class="stat-icon">🛕</div><div class="stat-value" id="orgTemples">–</div><div class="stat-label">Temples</div></div>
+            <div class="stat-card"><div class="stat-icon">🕐</div><div class="stat-value" id="orgSlots">–</div><div class="stat-label">Active Slots</div></div>
+            <div class="stat-card"><div class="stat-icon">🎫</div><div class="stat-value" id="orgBookings">–</div><div class="stat-label">Total Bookings</div></div>
+            <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="orgRevenue">–</div><div class="stat-label">Revenue</div></div>
+          </div>
+
+          <!-- Recent Bookings -->
+          <div class="glow-card" style="padding:24px;">
+            <div class="d-flex justify-between align-center mb-3">
+              <h3>Recent Bookings</h3>
+              <button class="btn btn-outline btn-sm" onclick="showSection('bookings')">View All</button>
+            </div>
+            <div id="recentBookingsTable">
+              <div class="loading-state"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Temples -->
+        <div id="section-temples" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <h1>My Temples</h1>
+            <p>Manage the temples assigned to you</p>
+          </div>
+          <button class="btn btn-primary mb-3" onclick="openAddTempleModal()"><i class="fas fa-plus"></i> Add Temple</button>
+          <div class="grid-3" id="orgTemplesList">
+            <div class="loading-state"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Slots -->
+        <div id="section-slots" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <h1>Manage Darshan Slots</h1>
+            <p>Create and manage darshan time slots</p>
+          </div>
+          <div class="d-flex gap-2 mb-3 flex-wrap">
+            <select id="slotTempleFilter" class="form-control" style="width:auto;">
+              <option value="">All Temples</option>
+            </select>
+            <button class="btn btn-primary" onclick="openAddSlotModal()"><i class="fas fa-plus"></i> Add Slot</button>
+          </div>
+          <div class="glow-card" style="padding:0;overflow:hidden;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Temple</th><th>Date</th><th>Time</th><th>Pooja</th><th>Seats</th><th>Price</th><th>Actions</th></tr></thead>
+                <tbody id="slotsTable"><tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bookings -->
+        <div id="section-bookings" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <h1>Darshan Bookings</h1>
+            <p>All bookings for your managed temples</p>
+          </div>
+          <div class="glow-card" style="padding:0;overflow:hidden;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Ticket ID</th><th>Devotee</th><th>Temple</th><th>Date & Time</th><th>Devotees</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="bookingsTable"><tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Slot Modal -->
+  <div class="modal-overlay" id="addSlotModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeAllModals()"><i class="fas fa-times"></i></button>
+      <h2 style="margin-bottom:16px;font-size:1.3rem;"><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Add Darshan Slot</h2>
+      <form id="addSlotForm">
+        <div class="form-group">
+          <label class="form-label">Temple</label>
+          <select id="slotTemple" class="form-control" required></select>
+        </div>
+        <div class="grid-2" style="gap:12px;">
+          <div class="form-group" style="margin-bottom:8px;">
+            <label class="form-label">Date</label>
+            <input type="date" id="slotDate" class="form-control" required />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label class="form-label">Pooja Type</label>
+            <input type="text" id="slotPooja" class="form-control" placeholder="General Darshan" />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label class="form-label">Start Time</label>
+            <input type="time" id="slotStart" class="form-control" required />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label class="form-label">End Time</label>
+            <input type="time" id="slotEnd" class="form-control" required />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label class="form-label">Total Seats</label>
+            <input type="number" id="slotSeats" class="form-control" placeholder="50" min="1" required />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label class="form-label">Price (₹)</label>
+            <input type="number" id="slotPrice" class="form-control" placeholder="100" min="0" required />
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:16px;font-size:0.9rem;color:var(--text-secondary);">
+          <input type="checkbox" id="slotSpecial" style="accent-color:var(--primary);" /> ✨ Mark as Special Slot
+        </label>
+        <div id="slotAlert"></div>
+        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save"></i> Create Slot</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/app.js"></script>
+  <script>
+    let orgTemples = [], orgAllSlots = [], orgAllBookings = [];
+    let currentSection = 'overview';
+
+    function showSection(sec) {
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById('section-' + sec)?.classList.remove('hidden');
+      document.querySelectorAll('.sidebar-nav a').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('onclick')?.includes(sec));
+      });
+      currentSection = sec;
+      if (sec === 'slots') loadOrgSlots();
+      if (sec === 'bookings') loadOrgBookings();
+      if (sec === 'temples') renderOrgTemples();
+    }
+
+    async function initDashboard() {
+      const token = localStorage.getItem('token');
+      const user = getCurrentUser();
+      if (!token || !user || !['organizer','admin'].includes(user.role)) { window.location = 'login.html'; return; }
+      document.getElementById('userNameBadge').textContent = '👤 ' + user.name;
+
+      try {
+        const [tRes, bRes] = await Promise.all([
+          fetch('/api/temples', { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch('/api/bookings', { headers: { 'Authorization': 'Bearer ' + token } })
+        ]);
+        const tData = await tRes.json();
+        const bData = await bRes.json();
+        orgTemples = tData.data || [];
+        orgAllBookings = bData.data || [];
+
+        // Stats
+        document.getElementById('orgTemples').textContent = orgTemples.length;
+        document.getElementById('orgBookings').textContent = orgAllBookings.length;
+        const revenue = orgAllBookings.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+b.totalAmount,0);
+        document.getElementById('orgRevenue').textContent = '₹' + (revenue/1000).toFixed(0) + 'k';
+
+        const sRes = await fetch('/api/slots', { headers: { 'Authorization': 'Bearer ' + token } });
+        const sData = await sRes.json();
+        orgAllSlots = sData.data || [];
+        document.getElementById('orgSlots').textContent = orgAllSlots.length;
+
+        // Populate temple selects
+        const opts = orgTemples.map(t => `<option value="${t._id}">${t.templeName}</option>`).join('');
+        document.getElementById('slotTemple').innerHTML = opts;
+        document.getElementById('slotTempleFilter').innerHTML = '<option value="">All Temples</option>' + opts;
+
+        loadRecentBookings();
+      } catch(e) { showToast('Error loading dashboard data', 'error'); }
+    }
+
+    function loadRecentBookings() {
+      const recent = orgAllBookings.slice(0, 5);
+      if (!recent.length) { document.getElementById('recentBookingsTable').innerHTML = '<div class="empty-state"><p>No bookings yet</p></div>'; return; }
+      document.getElementById('recentBookingsTable').innerHTML = `
+        <div class="table-container"><table>
+          <thead><tr><th>Ticket</th><th>Temple</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>${recent.map(b=>`
+            <tr>
+              <td><span style="color:var(--gold);font-family:monospace;">${b.ticketId||'–'}</span></td>
+              <td>${b.templeId?.templeName||'–'}</td>
+              <td>${b.slotId?.date||'–'}</td>
+              <td style="color:var(--gold);">₹${b.totalAmount}</td>
+              <td><span class="badge ${b.status==='confirmed'?'badge-success':b.status==='cancelled'?'badge-danger':'badge-info'}">${b.status}</span></td>
+            </tr>`).join('')}
+          </tbody></table></div>`;
+    }
+
+    function renderOrgTemples() {
+      const c = document.getElementById('orgTemplesList');
+      c.innerHTML = orgTemples.map(t => `
+        <div class="glow-card" style="padding:0;overflow:hidden;">
+          <img src="${t.image}" style="width:100%;height:140px;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1621768216002-5ac171d68e1f?w=400';" />
+          <div style="padding:16px;">
+            <div class="fw-bold mb-1">${t.templeName}</div>
+            <div class="text-sm text-muted mb-2"><i class="fas fa-map-marker-alt" style="color:var(--primary);"></i> ${t.location}</div>
+            <div class="text-xs text-muted">Darshan: ${t.darshanStartTime}–${t.darshanEndTime}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    async function loadOrgSlots() {
+      const token = localStorage.getItem('token');
+      const tbody = document.getElementById('slotsTable');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr>';
+      try {
+        const res = await fetch('/api/slots', { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        orgAllSlots = data.data || [];
+        tbody.innerHTML = orgAllSlots.map(s => `
+          <tr>
+            <td>${s.templeId?.templeName||'–'}</td>
+            <td>${s.date}</td>
+            <td>${s.startTime}–${s.endTime}</td>
+            <td>${s.poojaType} ${s.isSpecial?'✨':''}</td>
+            <td><span class="${s.availableSeats<5?'text-warning':'text-muted'}">${s.availableSeats}/${s.totalSeats}</span></td>
+            <td style="color:var(--gold);">₹${s.price}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="deleteSlot('${s._id}')"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No slots yet</td></tr>';
+      } catch(e) {}
+    }
+
+    async function loadOrgBookings() {
+      const token = localStorage.getItem('token');
+      const tbody = document.getElementById('bookingsTable');
+      try {
+        const res = await fetch('/api/bookings', { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        orgAllBookings = data.data || [];
+        tbody.innerHTML = orgAllBookings.map(b => `
+          <tr>
+            <td><span style="color:var(--gold);font-family:monospace;font-size:0.8rem;">${b.ticketId||'–'}</span></td>
+            <td>${b.userId?.name||'–'}</td>
+            <td>${b.templeId?.templeName||'–'}</td>
+            <td>${b.slotId?.date||'–'} ${b.slotId?.startTime||''}</td>
+            <td>${b.numDevotees}</td>
+            <td style="color:var(--gold);">₹${b.totalAmount}</td>
+            <td><span class="badge ${b.status==='confirmed'?'badge-success':b.status==='cancelled'?'badge-danger':'badge-info'}">${b.status}</span></td>
+          </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No bookings</td></tr>';
+      } catch(e) {}
+    }
+
+    document.getElementById('addSlotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      const payload = {
+        templeId: document.getElementById('slotTemple').value,
+        date: document.getElementById('slotDate').value,
+        startTime: document.getElementById('slotStart').value,
+        endTime: document.getElementById('slotEnd').value,
+        totalSeats: parseInt(document.getElementById('slotSeats').value),
+        price: parseFloat(document.getElementById('slotPrice').value),
+        poojaType: document.getElementById('slotPooja').value || 'General Darshan',
+        isSpecial: document.getElementById('slotSpecial').checked
+      };
+      try {
+        const res = await fetch('/api/slots', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) { showToast('Slot created successfully!', 'success'); closeAllModals(); loadOrgSlots(); }
+        else document.getElementById('slotAlert').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+      } catch(e) { document.getElementById('slotAlert').innerHTML = `<div class="alert alert-danger">Server error</div>`; }
+    });
+
+    async function deleteSlot(id) {
+      if (!confirm('Delete this slot?')) return;
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/slots/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      const data = await res.json();
+      if (data.success) { showToast('Slot deleted', 'success'); loadOrgSlots(); }
+    }
+
+    function openAddSlotModal() { document.getElementById('addSlotModal').classList.add('show'); }
+    function openAddTempleModal() { showToast('Temple creation available in Admin Panel', 'info'); }
+    function closeAllModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show')); }
+    function doLogout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location = 'login.html'; }
+
+    window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50));
+    initDashboard();
+  </script>
+</body>
+</html>

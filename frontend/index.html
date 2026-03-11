@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DarshanEase – Temple Darshan Ticket Booking</title>
+  <meta name="description"
+    content="Book darshan tickets for famous temples across India. Secure your slot online with DarshanEase – your digital gateway to a divine experience." />
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+  <div class="mesh-bg"></div>
+  <div class="bg-particles" id="particles"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">
+      <div class="logo-icon">🛕</div>
+      <span>Darshan<span class="gradient-text">Ease</span></span>
+    </div>
+    <ul class="navbar-nav" id="navLinks">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="temples.html">Temples</a></li>
+      <li><a href="my-bookings.html">My Bookings</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+    <div class="navbar-actions" id="navActions">
+      <a href="login.html" class="btn btn-outline btn-sm" id="loginBtn">Login</a>
+      <a href="register.html" class="btn btn-primary btn-sm" id="registerBtn">Get Started</a>
+      <span id="userGreeting" class="hidden" style="color:var(--text-secondary);font-size:0.9rem;"></span>
+      <button id="logoutBtn" class="btn btn-ghost btn-sm hidden">Logout</button>
+    </div>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="container">
+      <div
+        style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;min-height:100vh;padding:100px 0;">
+        <div class="hero-content">
+          <div class="hero-eyebrow animate-up"><i class="fas fa-om"></i> Sacred & Simple</div>
+          <h1 class="hero-title animate-up-delay-1">
+            Your Path to<br />
+            <span class="display-title gradient-text">Divine Darshan</span><br />
+            Starts Here
+          </h1>
+          <p class="hero-subtitle animate-up-delay-2">
+            Skip the queues. Book sacred darshan slots at India's most revered temples — from the comfort of your home.
+            Fast, secure, and spiritually fulfilling.
+          </p>
+          <div class="hero-actions animate-up-delay-3">
+            <a href="temples.html" class="btn btn-primary btn-lg pulse-glow">
+              <i class="fas fa-search"></i> Explore Temples
+            </a>
+            <a href="register.html" class="btn btn-outline btn-lg">
+              <i class="fas fa-user-plus"></i> Create Account
+            </a>
+          </div>
+          <div class="hero-stats animate-up-delay-4">
+            <div>
+              <div class="hero-stat-value gold-text">6+</div>
+              <div class="hero-stat-label">Sacred Temples</div>
+            </div>
+            <div>
+              <div class="hero-stat-value gold-text">50K+</div>
+              <div class="hero-stat-label">Happy Devotees</div>
+            </div>
+            <div>
+              <div class="hero-stat-value gold-text">99%</div>
+              <div class="hero-stat-label">Booking Success</div>
+            </div>
+          </div>
+        </div>
+        <div class="animate-up-delay-2" style="position:relative;">
+          <div style="position:relative;z-index:1;">
+            <div class="glow-card" style="padding:0;overflow:hidden;border-radius:24px;">
+              <img src="https://www.thomascook.in/blog/wp-content/uploads/2019/11/tirupati-balaji-temple-1.jpg-1.jpg"
+                alt="Tirupati Balaji Temple" style="width:100%;height:380px;object-fit:cover;display:block;"
+                onerror="this.src='https://th.bing.com/th/id/OIP.MCB_Y2qYiMKtl17LLexIswHaHa?w=192&h=192&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3';" />
+              <div style="padding:20px;">
+                <div class="d-flex justify-between align-center mb-2">
+                  <div>
+                    <div style="font-weight:700;font-size:1rem;">Tirupati Balaji Temple</div>
+                    <div style="color:var(--text-secondary);font-size:0.85rem;"><i class="fas fa-map-marker-alt"
+                        style="color:var(--primary);margin-right:4px;"></i>Tirupati, Andhra Pradesh</div>
+                  </div>
+                  <span class="badge badge-success"><i class="fas fa-circle" style="font-size:0.5rem;"></i>
+                    Available</span>
+                </div>
+                <div class="divider"></div>
+                <div class="d-flex gap-2">
+                  <div style="flex:1;text-align:center;padding:10px;background:var(--glass);border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--text-secondary);">Next Slot</div>
+                    <div style="font-weight:700;font-size:0.9rem;">6:00 AM</div>
+                  </div>
+                  <div style="flex:1;text-align:center;padding:10px;background:var(--glass);border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--text-secondary);">Seats Left</div>
+                    <div style="font-weight:700;font-size:0.9rem;color:var(--success);">42</div>
+                  </div>
+                  <div style="flex:1;text-align:center;padding:10px;background:var(--glass);border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--text-secondary);">Price</div>
+                    <div style="font-weight:700;font-size:0.9rem;color:var(--gold);">₹100</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- decorative elements -->
+          <div
+            style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,107,53,0.3),transparent);border-radius:50%;filter:blur(20px);z-index:0;">
+          </div>
+          <div
+            style="position:absolute;bottom:-30px;left:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(255,215,0,0.15),transparent);border-radius:50%;filter:blur(30px);z-index:0;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center mb-4">
+        <div class="hero-eyebrow" style="display:inline-flex;margin-bottom:16px;">Simple Process</div>
+        <h2 style="font-size:2.2rem;">How <span class="gradient-text">DarshanEase</span> Works</h2>
+        <p class="text-muted mt-1" style="max-width:500px;margin:8px auto 0;">Book your divine darshan in three simple
+          steps</p>
+      </div>
+      <div class="grid-3">
+        <div class="glow-card card-content text-center animate-up">
+          <div
+            style="width:64px;height:64px;background:rgba(255,107,53,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px;">
+            🛕</div>
+          <h3 style="margin-bottom:8px;">Choose Temple</h3>
+          <p class="text-muted text-sm">Browse through our curated list of sacred temples across India with detailed
+            information.</p>
+        </div>
+        <div class="glow-card card-content text-center animate-up-delay-1">
+          <div
+            style="width:64px;height:64px;background:rgba(255,215,0,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px;">
+            🕐</div>
+          <h3 style="margin-bottom:8px;">Select Slot</h3>
+          <p class="text-muted text-sm">Pick your preferred darshan time slot and pooja type from available options.</p>
+        </div>
+        <div class="glow-card card-content text-center animate-up-delay-2">
+          <div
+            style="width:64px;height:64px;background:rgba(34,197,94,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px;">
+            🎫</div>
+          <h3 style="margin-bottom:8px;">Get E-Ticket</h3>
+          <p class="text-muted text-sm">Receive your digital ticket instantly with a unique booking ID for hassle-free
+            entry.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED TEMPLES -->
+  <section class="section"
+    style="background:rgba(255,255,255,0.01);border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);">
+    <div class="container">
+      <div class="d-flex justify-between align-center mb-4">
+        <div>
+          <h2 style="font-size:2rem;">Featured <span class="gradient-text">Temples</span></h2>
+          <p class="text-muted mt-1 text-sm">Sacred destinations available for online darshan booking</p>
+        </div>
+        <a href="temples.html" class="btn btn-outline">View All <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="grid-3" id="featuredTemples">
+        <div class="loading-state">
+          <div class="spinner"></div><span>Loading temples...</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center mb-4">
+        <h2 style="font-size:2.2rem;">Why Choose <span class="gradient-text">DarshanEase?</span></h2>
+      </div>
+      <div class="grid-4">
+        <div class="glow-card card-content text-center">
+          <div style="font-size:2rem;margin-bottom:12px;">⚡</div>
+          <h4 style="margin-bottom:8px;">Instant Booking</h4>
+          <p class="text-muted text-sm">Book slots in seconds, get confirmation immediately</p>
+        </div>
+        <div class="glow-card card-content text-center">
+          <div style="font-size:2rem;margin-bottom:12px;">🔒</div>
+          <h4 style="margin-bottom:8px;">Secure Payments</h4>
+          <p class="text-muted text-sm">Your donations and payments are always safe</p>
+        </div>
+        <div class="glow-card card-content text-center">
+          <div style="font-size:2rem;margin-bottom:12px;">📱</div>
+          <h4 style="margin-bottom:8px;">Digital Tickets</h4>
+          <p class="text-muted text-sm">E-tickets accessible anytime, anywhere on your device</p>
+        </div>
+        <div class="glow-card card-content text-center">
+          <div style="font-size:2rem;margin-bottom:12px;">🔔</div>
+          <h4 style="margin-bottom:8px;">Live Availability</h4>
+          <p class="text-muted text-sm">Real-time slot availability and instant notifications</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section">
+    <div class="container">
+      <div
+        style="text-align:center;padding:60px;background:var(--gradient-card);border:1px solid rgba(255,107,53,0.2);border-radius:var(--radius-lg);">
+        <div style="font-size:3rem;margin-bottom:16px;">🙏</div>
+        <h2 style="font-size:2.2rem;margin-bottom:12px;">Begin Your <span class="display-title gradient-text">Spiritual
+            Journey</span> Today</h2>
+        <p class="text-muted" style="max-width:500px;margin:0 auto 28px;">Join thousands of devotees who plan their
+          temple visits with DarshanEase. Fast, simple, and meaningful.</p>
+        <a href="register.html" class="btn btn-primary btn-lg">
+          <i class="fas fa-user-plus"></i> Create Free Account
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="grid-4" style="gap:40px;">
+        <div>
+          <div class="footer-brand"><span class="gradient-text">Darshan</span>Ease 🛕</div>
+          <p class="footer-desc">Your trusted companion for seamless temple darshan ticket booking across India.</p>
+        </div>
+        <div>
+          <p class="footer-heading">Quick Links</p>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="temples.html">Temples</a></li>
+            <li><a href="my-bookings.html">My Bookings</a></li>
+            <li><a href="profile.html">Profile</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-heading">Account</p>
+          <ul class="footer-links">
+            <li><a href="login.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+            <li><a href="organizer-dashboard.html">Organizer Portal</a></li>
+            <li><a href="admin-dashboard.html">Admin Panel</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-heading">Support</p>
+          <ul class="footer-links">
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Cancellation Policy</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2024 DarshanEase. Made with 🙏 for devotees across India.</span>
+        <div style="display:flex;gap:16px;">
+          <a href="#" style="color:var(--text-muted);"><i class="fab fa-twitter"></i></a>
+          <a href="#" style="color:var(--text-muted);"><i class="fab fa-instagram"></i></a>
+          <a href="#" style="color:var(--text-muted);"><i class="fab fa-facebook"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Particles
+    const particlesEl = document.getElementById('particles');
+    for (let i = 0; i < 15; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 6 + 2;
+      p.style.cssText = `width:${size}px;height:${size}px;background:${['var(--primary)', 'var(--gold)', 'var(--saffron)'][Math.floor(Math.random() * 3)]};left:${Math.random() * 100}%;animation-delay:${Math.random() * 20}s;animation-duration:${Math.random() * 15 + 10}s;`;
+      particlesEl.appendChild(p);
+    }
+
+    // Scroll navbar effect
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Load featured temples
+    async function loadFeaturedTemples() {
+      try {
+        const res = await fetch('/api/temples');
+        const data = await res.json();
+        const container = document.getElementById('featuredTemples');
+        if (!data.success || !data.data.length) {
+          container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🛕</div><p>No temples found</p></div>';
+          return;
+        }
+        const temples = data.data.slice(0, 3);
+        container.innerHTML = temples.map(t => templeCard(t)).join('');
+      } catch (e) {
+        document.getElementById('featuredTemples').innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon">⚠️</div>
+            <h3>Backend not connected</h3>
+            <p>Start the server to see live temple data</p>
+          </div>`;
+      }
+    }
+
+    function templeCard(t) {
+      const rating = Array.from({ length: 5 }, (_, i) => `<i class="fas fa-star star ${i < Math.floor(t.rating) ? '' : 'empty'}"></i>`).join('');
+      return `
+        <div class="temple-card" onclick="window.location='temple-detail.html?id=${t._id}'">
+          <div class="temple-card-img-wrap">
+            <img class="temple-card-img" src="${t.image}" alt="${t.templeName}" onerror="this.src='https://images.unsplash.com/photo-1621768216002-5ac171d68e1f?w=400';" />
+            <div class="temple-card-overlay"><span class="badge badge-success"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Open</span></div>
+          </div>
+          <div class="temple-card-body">
+            <div class="temple-card-title">${t.templeName}</div>
+            <div class="temple-card-location"><i class="fas fa-map-marker-alt" style="color:var(--primary);"></i>${t.location}</div>
+            <div class="d-flex align-center gap-1">
+              <div class="stars">${rating}</div>
+              <span class="text-xs text-muted">(${t.totalReviews?.toLocaleString()})</span>
+            </div>
+          </div>
+          <div class="temple-card-footer">
+            <span class="text-sm text-muted"><i class="fas fa-clock" style="color:var(--primary);margin-right:4px;"></i>${t.darshanStartTime}–${t.darshanEndTime}</span>
+            <span class="badge badge-primary">Book Now</span>
+          </div>
+        </div>`;
+    }
+
+    loadFeaturedTemples();
+  </script>
+</body>
+
+</html>

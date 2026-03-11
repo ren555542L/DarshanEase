@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temple Details – DarshanEase</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+  <div class="mesh-bg"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand" onclick="window.location='index.html'" style="cursor:pointer;">
+      <div class="logo-icon">🛕</div>
+      <span>Darshan<span class="gradient-text">Ease</span></span>
+    </div>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="temples.html" class="active">Temples</a></li>
+      <li><a href="my-bookings.html">My Bookings</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+    <div class="navbar-actions">
+      <span id="userGreeting" class="hidden"></span>
+      <button id="logoutBtn" class="btn btn-ghost btn-sm hidden">Logout</button>
+      <a href="login.html" class="btn btn-outline btn-sm" id="loginBtn">Login</a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <!-- Breadcrumb -->
+    <div style="padding:20px 0 0;" class="container">
+      <div class="text-sm text-muted d-flex align-center gap-1">
+        <a href="index.html" style="color:var(--text-muted);">Home</a>
+        <i class="fas fa-chevron-right" style="font-size:0.7rem;"></i>
+        <a href="temples.html" style="color:var(--text-muted);">Temples</a>
+        <i class="fas fa-chevron-right" style="font-size:0.7rem;"></i>
+        <span id="breadcrumbTemple" style="color:var(--primary);">Loading...</span>
+      </div>
+    </div>
+
+    <div class="container" id="mainContent">
+      <div class="loading-state" style="padding:120px;">
+        <div class="spinner"></div><span>Loading temple details...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      <h2 style="margin-bottom:4px;font-size:1.4rem;">Confirm Booking</h2>
+      <p class="text-sm text-muted mb-3">Review and confirm your darshan slot booking</p>
+
+      <div class="glow-card" style="padding:16px;margin-bottom:20px;">
+        <div class="d-flex justify-between mb-2">
+          <span class="text-sm text-muted">Temple</span>
+          <span class="fw-bold text-sm" id="modalTemple"></span>
+        </div>
+        <div class="d-flex justify-between mb-2">
+          <span class="text-sm text-muted">Date & Time</span>
+          <span class="fw-bold text-sm" id="modalSlot"></span>
+        </div>
+        <div class="d-flex justify-between mb-2">
+          <span class="text-sm text-muted">Pooja Type</span>
+          <span class="fw-bold text-sm" id="modalPooja"></span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Number of Devotees</label>
+        <div class="d-flex align-center gap-2">
+          <button class="btn btn-outline btn-sm" onclick="changeCount(-1)" id="minusBtn">–</button>
+          <span id="devoteeCount" style="font-size:1.3rem;font-weight:700;min-width:40px;text-align:center;">1</span>
+          <button class="btn btn-outline btn-sm" onclick="changeCount(1)">+</button>
+          <span class="text-sm text-muted">max 10</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Donation Amount (Optional)</label>
+        <div class="input-group">
+          <i class="fas fa-rupee-sign input-icon"></i>
+          <input type="number" id="donationAmount" class="form-control" placeholder="0" min="0" value="0" />
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="d-flex justify-between mb-3">
+        <span class="fw-bold">Total Amount</span>
+        <span class="fw-bold" id="totalAmount" style="color:var(--gold);font-size:1.2rem;"></span>
+      </div>
+
+      <div id="bookingAlert"></div>
+
+      <button class="btn btn-primary w-100 btn-lg" id="confirmBookingBtn" onclick="confirmBooking()">
+        <i class="fas fa-check-circle"></i> Confirm & Pay
+      </button>
+      <p class="text-center text-xs text-muted mt-2">Payment is simulated for demo purposes</p>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const templeId = params.get('id');
+    let temple = null, selectedSlot = null, devoteeCountVal = 1;
+
+    window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50));
+
+    async function loadTemple() {
+      if (!templeId) { window.location = 'temples.html'; return; }
+      try {
+        const [tRes, sRes] = await Promise.all([
+          fetch(`/api/temples/${templeId}`),
+          fetch(`/api/slots/temple/${templeId}`)
+        ]);
+        const tData = await tRes.json();
+        const sData = await sRes.json();
+        if (!tData.success) { window.location = 'temples.html'; return; }
+        temple = tData.data;
+        document.getElementById('breadcrumbTemple').textContent = temple.templeName;
+        document.title = `${temple.templeName} – DarshanEase`;
+        renderTempleDetail(temple, sData.data || []);
+      } catch (e) {
+        document.getElementById('mainContent').innerHTML = `<div class="empty-state" style="padding:120px;"><div class="empty-state-icon">⚠️</div><h3>Server not connected</h3><p>Start the backend server to view temple details.</p><a href="temples.html" class="btn btn-outline mt-2">← Back to Temples</a></div>`;
+      }
+    }
+
+    function renderTempleDetail(t, slots) {
+      const today = new Date().toISOString().split('T')[0];
+      const dates = [...new Set(slots.map(s => s.date))].filter(d => d >= today).sort().slice(0, 7);
+      const rating = [1, 2, 3, 4, 5].map(i => `<i class="fas fa-star star ${i <= Math.floor(t.rating) ? '' : 'empty'}"></i>`).join('');
+
+      document.getElementById('mainContent').innerHTML = `
+        <div style="padding:32px 0 60px;">
+          <!-- Hero Image -->
+          <div style="border-radius:var(--radius-lg);overflow:hidden;margin-bottom:32px;position:relative;height:400px;">
+            <img src="${t.image}" alt="${t.templeName}" style="width:100%;height:100%;object-fit:cover;"
+                 onerror="this.src='https://th.bing.com/th/id/OIP.MCB_Y2qYiMKtl17LLexIswHaHa?w=192&h=192&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3';" />
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,15,0.9) 0%,rgba(10,10,15,0.2) 60%,transparent 100%);"></div>
+            <div style="position:absolute;bottom:32px;left:32px;">
+              <span class="badge badge-success mb-2"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Open for Darshan</span>
+              <h1 style="font-size:2.4rem;font-weight:900;margin-bottom:8px;">${t.templeName}</h1>
+              <div class="d-flex align-center gap-2">
+                <i class="fas fa-map-marker-alt" style="color:var(--primary);"></i>
+                <span style="color:var(--text-secondary);">${t.location}</span>
+                <div class="stars" style="margin-left:8px;">${rating}</div>
+                <span class="text-sm text-muted">${t.rating} (${t.totalReviews?.toLocaleString()})</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap:32px;align-items:start;">
+            <!-- Left: Info -->
+            <div>
+              <div class="glow-card" style="padding:24px;margin-bottom:20px;">
+                <h3 style="margin-bottom:12px;">About the Temple</h3>
+                <p class="text-muted" style="line-height:1.8;">${t.description}</p>
+              </div>
+
+              <div class="glow-card" style="padding:24px;margin-bottom:20px;">
+                <h3 style="margin-bottom:16px;">Darshan Information</h3>
+                <div class="d-flex gap-2 flex-wrap">
+                  <div style="flex:1;min-width:120px;padding:14px;background:var(--glass);border-radius:8px;text-align:center;">
+                    <div style="font-size:1.5rem;margin-bottom:4px;">🕐</div>
+                    <div class="text-xs text-muted">Opens</div>
+                    <div class="fw-bold">${t.darshanStartTime}</div>
+                  </div>
+                  <div style="flex:1;min-width:120px;padding:14px;background:var(--glass);border-radius:8px;text-align:center;">
+                    <div style="font-size:1.5rem;margin-bottom:4px;">🌙</div>
+                    <div class="text-xs text-muted">Closes</div>
+                    <div class="fw-bold">${t.darshanEndTime}</div>
+                  </div>
+                  <div style="flex:1;min-width:120px;padding:14px;background:var(--glass);border-radius:8px;text-align:center;">
+                    <div style="font-size:1.5rem;margin-bottom:4px;">🙏</div>
+                    <div class="text-xs text-muted">Deity</div>
+                    <div class="fw-bold" style="font-size:0.85rem;">${t.deity}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="glow-card" style="padding:24px;">
+                <h3 style="margin-bottom:12px;">Amenities</h3>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                  ${(t.amenities || []).map(a => `<span class="badge badge-info"><i class="fas fa-check-circle"></i> ${a}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Slot Booking -->
+            <div>
+              <div class="glow-card" style="padding:24px;position:sticky;top:100px;">
+                <h3 style="margin-bottom:4px;">Book Darshan Slot</h3>
+                <p class="text-sm text-muted mb-3">Select a date and time slot</p>
+
+                ${dates.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No slots available</p></div>' : `
+                <!-- Date Tabs -->
+                <div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+                  ${dates.map((d, i) => {
+        const dt = new Date(d + 'T00:00:00');
+        const label = dt.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+        return `<button class="btn ${i === 0 ? 'btn-primary' : 'btn-outline'} btn-sm" style="white-space:nowrap;" onclick="selectDate('${d}', this)">${label}</button>`;
+      }).join('')}
+                </div>
+                <!-- Slots List -->
+                <div id="slotsList">
+                  ${renderSlots(slots.filter(s => s.date === dates[0]))}
+                </div>`}
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      window._allSlots = slots;
+      window._dates = dates;
+    }
+
+    function renderSlots(slots) {
+      if (!slots.length) return '<div class="empty-state"><div class="empty-state-icon">🕐</div><p>No slots for this date</p></div>';
+      return slots.map(s => `
+        <div class="slot-card ${s.availableSeats === 0 ? 'full' : ''}" id="slot-${s._id}"
+             onclick="${s.availableSeats > 0 ? `selectSlot('${s._id}')` : ''}">
+          <div>
+            <div class="fw-bold">${s.startTime} – ${s.endTime}</div>
+            <div class="text-sm text-muted">${s.poojaType} ${s.isSpecial ? '✨' : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fw-bold" style="color:var(--gold);">₹${s.price}</div>
+            <div class="text-xs ${s.availableSeats < 10 ? 'text-warning' : 'text-muted'}" style="color:${s.availableSeats === 0 ? 'var(--danger)' : s.availableSeats < 10 ? 'var(--warning)' : 'var(--success)'};">
+              ${s.availableSeats === 0 ? 'Full' : s.availableSeats + ' seats left'}
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    function selectDate(date, btn) {
+      document.querySelectorAll('[onclick^="selectDate"]').forEach(b => {
+        b.className = 'btn btn-outline btn-sm';
+        b.style.whiteSpace = 'nowrap';
+      });
+      btn.className = 'btn btn-primary btn-sm';
+      btn.style.whiteSpace = 'nowrap';
+      selectedSlot = null;
+      document.getElementById('slotsList').innerHTML = renderSlots(window._allSlots.filter(s => s.date === date));
+    }
+
+    function selectSlot(slotId) {
+      document.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('slot-' + slotId)?.classList.add('selected');
+      selectedSlot = window._allSlots.find(s => s._id === slotId);
+      if (selectedSlot) openBookingModal();
+    }
+
+    function openBookingModal() {
+      const user = getCurrentUser();
+      if (!user) { showToast('Please login to book a slot', 'error'); setTimeout(() => window.location = 'login.html', 1200); return; }
+
+      devoteeCountVal = 1;
+      document.getElementById('devoteeCount').textContent = 1;
+      document.getElementById('donationAmount').value = 0;
+      document.getElementById('modalTemple').textContent = temple.templeName;
+      document.getElementById('modalSlot').textContent = selectedSlot.date + ' • ' + selectedSlot.startTime + '–' + selectedSlot.endTime;
+      document.getElementById('modalPooja').textContent = selectedSlot.poojaType;
+      updateTotal();
+      document.getElementById('bookingModal').classList.add('show');
+    }
+
+    function closeModal() { document.getElementById('bookingModal').classList.remove('show'); }
+
+    function changeCount(delta) {
+      devoteeCountVal = Math.max(1, Math.min(10, devoteeCountVal + delta));
+      document.getElementById('devoteeCount').textContent = devoteeCountVal;
+      document.getElementById('minusBtn').disabled = devoteeCountVal <= 1;
+      updateTotal();
+    }
+
+    function updateTotal() {
+      const donation = parseFloat(document.getElementById('donationAmount').value) || 0;
+      const total = selectedSlot.price * devoteeCountVal + donation;
+      document.getElementById('totalAmount').textContent = '₹' + total.toLocaleString();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('donationAmount')?.addEventListener('input', updateTotal);
+    });
+
+    async function confirmBooking() {
+      const token = localStorage.getItem('token');
+      if (!token) { window.location = 'login.html'; return; }
+      const btn = document.getElementById('confirmBookingBtn');
+      btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;"></span> Processing...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            slotId: selectedSlot._id,
+            templeId: temple._id,
+            numDevotees: devoteeCountVal,
+            donationAmount: parseFloat(document.getElementById('donationAmount').value) || 0
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeModal();
+          localStorage.setItem('lastBooking', JSON.stringify(data.data));
+          showToast('Booking confirmed! Redirecting to ticket...', 'success');
+          setTimeout(() => window.location = `booking.html?id=${data.data._id}`, 1000);
+        } else {
+          document.getElementById('bookingAlert').innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i>${data.message}</div>`;
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm & Pay';
+          btn.disabled = false;
+        }
+      } catch (e) {
+        document.getElementById('bookingAlert').innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i>Server error. Please try again.</div>`;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm & Pay';
+        btn.disabled = false;
+      }
+    }
+
+    loadTemple();
+  </script>
+</body>
+
+</html>

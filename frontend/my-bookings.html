@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings – DarshanEase</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="mesh-bg"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand" onclick="window.location='index.html'" style="cursor:pointer;">
+      <div class="logo-icon">🛕</div>
+      <span>Darshan<span class="gradient-text">Ease</span></span>
+    </div>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="temples.html">Temples</a></li>
+      <li><a href="my-bookings.html" class="active">My Bookings</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+    <div class="navbar-actions">
+      <span id="userGreeting" class="hidden" style="color:var(--text-secondary);font-size:0.9rem;"></span>
+      <button id="logoutBtn" class="btn btn-ghost btn-sm hidden">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="page-header">
+      <h1>My <span class="gradient-text">Darshan Bookings</span></h1>
+      <p>Track all your temple visit bookings in one place</p>
+    </div>
+
+    <div class="container" style="padding-bottom:60px;">
+      <!-- Summary Stats -->
+      <div class="grid-4 mb-4" id="statsRow">
+        <div class="stat-card"><div class="stat-icon">🎫</div><div class="stat-value" id="totalBookings">–</div><div class="stat-label">Total Bookings</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="confirmedBookings">–</div><div class="stat-label">Confirmed</div></div>
+        <div class="stat-card"><div class="stat-icon">🛕</div><div class="stat-value" id="templesVisited">–</div><div class="stat-label">Temples Visited</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="totalSpent">–</div><div class="stat-label">Total Donated</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-upcoming" onclick="switchTab('upcoming')">Upcoming</button>
+        <button class="tab-btn" id="tab-past" onclick="switchTab('past')">Past Visits</button>
+        <button class="tab-btn" id="tab-cancelled" onclick="switchTab('cancelled')">Cancelled</button>
+        <button class="tab-btn" id="tab-all" onclick="switchTab('all')">All Bookings</button>
+      </div>
+
+      <div id="bookingsContainer">
+        <div class="loading-state"><div class="spinner"></div><span>Loading bookings...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/app.js"></script>
+  <script>
+    let allBookings = [];
+    let activeTab = 'upcoming';
+    const today = new Date().toISOString().split('T')[0];
+
+    window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50));
+
+    async function loadBookings() {
+      const token = localStorage.getItem('token');
+      if (!token) { window.location = 'login.html'; return; }
+
+      try {
+        const res = await fetch('/api/bookings/my', { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        if (!data.success) { window.location = 'login.html'; return; }
+        allBookings = data.data;
+
+        // Stats
+        const confirmed = allBookings.filter(b => b.status === 'confirmed');
+        const temples = [...new Set(allBookings.map(b => b.templeId?._id).filter(Boolean))];
+        const spent = allBookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.totalAmount, 0);
+        document.getElementById('totalBookings').textContent = allBookings.length;
+        document.getElementById('confirmedBookings').textContent = confirmed.length;
+        document.getElementById('templesVisited').textContent = temples.length;
+        document.getElementById('totalSpent').textContent = '₹' + spent.toLocaleString();
+
+        renderTab('upcoming');
+      } catch(e) {
+        document.getElementById('bookingsContainer').innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Server not connected</h3><p>Start the backend to view bookings</p></div>`;
+      }
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      renderTab(tab);
+    }
+
+    function renderTab(tab) {
+      let filtered = allBookings;
+      if (tab === 'upcoming') filtered = allBookings.filter(b => b.status === 'confirmed' && (b.slotId?.date || '') >= today);
+      else if (tab === 'past') filtered = allBookings.filter(b => b.status === 'confirmed' && (b.slotId?.date || '') < today);
+      else if (tab === 'cancelled') filtered = allBookings.filter(b => b.status === 'cancelled');
+
+      if (!filtered.length) {
+        document.getElementById('bookingsContainer').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎫</div>
+            <h3>No bookings here</h3>
+            <p>You don't have any ${tab !== 'all' ? tab : ''} bookings yet</p>
+            <a href="temples.html" class="btn btn-primary mt-2"><i class="fas fa-search"></i> Explore Temples</a>
+          </div>`;
+        return;
+      }
+
+      document.getElementById('bookingsContainer').innerHTML = filtered.map(b => bookingCard(b)).join('');
+    }
+
+    function bookingCard(b) {
+      const dateStr = b.slotId?.date || '–';
+      const isPast = dateStr < today;
+      const statusBadge = {
+        confirmed: `<span class="badge badge-success"><i class="fas fa-check-circle"></i> Confirmed</span>`,
+        cancelled:  `<span class="badge badge-danger"><i class="fas fa-times-circle"></i> Cancelled</span>`,
+        completed:  `<span class="badge badge-info"><i class="fas fa-check-double"></i> Completed</span>`
+      }[b.status] || '';
+
+      return `
+        <div class="glow-card" style="padding:20px;margin-bottom:16px;transition:all 0.3s ease;">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+              <div style="width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;">
+                <img src="${b.templeId?.image||''}" style="width:100%;height:100%;object-fit:cover;"
+                     onerror="this.parentElement.innerHTML='<div style=\'width:56px;height:56px;background:var(--glass);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;\'>🛕</div>';" />
+              </div>
+              <div>
+                <div class="fw-bold">${b.templeId?.templeName || 'Temple'}</div>
+                <div class="text-sm text-muted"><i class="fas fa-map-marker-alt" style="color:var(--primary);margin-right:4px;"></i>${b.templeId?.location || '–'}</div>
+                <div class="text-sm text-muted"><i class="fas fa-calendar" style="margin-right:4px;"></i>${dateStr} &nbsp;•&nbsp; <i class="fas fa-clock" style="margin-right:4px;"></i>${b.slotId?.startTime||'–'} – ${b.slotId?.endTime||'–'}</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              ${statusBadge}
+              <div class="gold-text fw-bold mt-1" style="font-size:1.1rem;">₹${b.totalAmount?.toLocaleString()}</div>
+              <div class="text-xs text-muted">${b.numDevotees} devotee(s)</div>
+            </div>
+          </div>
+          <div class="divider" style="margin:12px 0;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <span class="text-xs text-muted">Ticket ID: </span>
+              <span class="text-xs fw-bold" style="color:var(--gold);letter-spacing:0.05em;">${b.ticketId||'–'}</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <a href="booking.html?id=${b._id}" class="btn btn-outline btn-sm"><i class="fas fa-ticket-alt"></i> View Ticket</a>
+              ${b.status === 'confirmed' && !isPast ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking('${b._id}')"><i class="fas fa-times"></i> Cancel</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    async function cancelBooking(id) {
+      if (!confirm('Are you sure you want to cancel this booking? Seats will be released.')) return;
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`/api/bookings/${id}/cancel`, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        if (data.success) { showToast('Booking cancelled successfully', 'success'); loadBookings(); }
+        else showToast(data.message, 'error');
+      } catch(e) { showToast('Error cancelling booking', 'error'); }
+    }
+
+    loadBookings();
+  </script>
+</body>
+</html>

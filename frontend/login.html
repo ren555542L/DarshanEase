@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – DarshanEase</title>
+  <meta name="description" content="Login to your DarshanEase account to book darshan tickets." />
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="mesh-bg"></div>
+  <div class="bg-particles" id="particles"></div>
+
+  <nav class="navbar">
+    <div class="navbar-brand" onclick="window.location='index.html'" style="cursor:pointer;">
+      <div class="logo-icon">🛕</div>
+      <span>Darshan<span class="gradient-text">Ease</span></span>
+    </div>
+    <div class="navbar-actions">
+      <a href="register.html" class="btn btn-outline btn-sm">Register</a>
+    </div>
+  </nav>
+
+  <div class="auth-page">
+    <div class="auth-card animate-up">
+      <div class="auth-logo">
+        <div class="logo-icon">🛕</div>
+        <h1 style="font-size:1.6rem;margin-top:8px;">Welcome Back</h1>
+        <p class="text-muted text-sm">Sign in to your sacred journey</p>
+      </div>
+
+      <div id="alertBox"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-group">
+            <i class="fas fa-envelope input-icon"></i>
+            <input type="email" id="email" class="form-control" placeholder="devotee@example.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="password" class="form-control" placeholder="Enter your password" required />
+            <i class="fas fa-eye" id="togglePassword" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-muted);"></i>
+          </div>
+        </div>
+
+        <div class="d-flex justify-between align-center mb-3">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="checkbox" style="accent-color:var(--primary);" /> Remember me
+          </label>
+          <a href="#" style="font-size:0.88rem;" class="gradient-text">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 btn-lg" id="loginSubmit">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>or login as</span></div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline w-100 btn-sm" onclick="quickLogin('admin@darshanease.com','admin123')">
+          <i class="fas fa-shield-alt" style="color:var(--gold);"></i> Admin
+        </button>
+        <button class="btn btn-outline w-100 btn-sm" onclick="quickLogin('organizer@darshanease.com','organizer123')">
+          <i class="fas fa-cog" style="color:var(--info);"></i> Organizer
+        </button>
+        <button class="btn btn-outline w-100 btn-sm" onclick="quickLogin('devotee@darshanease.com','devotee123')">
+          <i class="fas fa-user" style="color:var(--success);"></i> Devotee
+        </button>
+      </div>
+
+      <p class="text-center text-sm mt-3" style="color:var(--text-secondary);">
+        Don't have an account? <a href="register.html" class="gradient-text fw-bold">Register now</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/app.js"></script>
+  <script>
+    // Particles
+    const pe = document.getElementById('particles');
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const s = Math.random() * 5 + 2;
+      p.style.cssText = `width:${s}px;height:${s}px;background:${['var(--primary)','var(--gold)'][Math.floor(Math.random()*2)]};left:${Math.random()*100}%;animation-delay:${Math.random()*15}s;animation-duration:${Math.random()*12+8}s;`;
+      pe.appendChild(p);
+    }
+
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const pw = document.getElementById('password');
+      const isText = pw.type === 'text';
+      pw.type = isText ? 'password' : 'text';
+      this.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+      this.style.cssText = 'position:absolute;right:16px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-muted);';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      await doLogin(email, password);
+    });
+
+    async function quickLogin(email, pass) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = pass;
+      await doLogin(email, pass);
+    }
+
+    async function doLogin(email, password) {
+      const btn = document.getElementById('loginSubmit');
+      btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;"></span> Signing in...';
+      btn.disabled = true;
+      document.getElementById('alertBox').innerHTML = '';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          showToast('Welcome back, ' + data.user.name + '! 🙏', 'success');
+          setTimeout(() => {
+            if (data.user.role === 'admin') window.location = 'admin-dashboard.html';
+            else if (data.user.role === 'organizer') window.location = 'organizer-dashboard.html';
+            else window.location = 'index.html';
+          }, 800);
+        } else {
+          document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i>${data.message}</div>`;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        document.getElementById('alertBox').innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i>Could not connect to server. Please try again.</div>`;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

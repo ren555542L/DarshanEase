@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – DarshanEase</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="mesh-bg"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand" onclick="window.location='index.html'" style="cursor:pointer;">
+      <div class="logo-icon">🛕</div>
+      <span>Darshan<span class="gradient-text">Ease</span></span>
+    </div>
+    <div class="navbar-actions">
+      <span class="badge badge-gold" style="font-size:0.85rem;padding:6px 14px;"><i class="fas fa-shield-alt"></i> Admin</span>
+      <button onclick="doLogout()" class="btn btn-ghost btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div style="display:flex;gap:0;">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div style="padding:8px 16px;font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Admin Control</div>
+        <ul class="sidebar-nav">
+          <li><a href="#" class="active" onclick="showSection('analytics')"><span class="icon">📊</span>Analytics</a></li>
+          <li><a href="#" onclick="showSection('users')"><span class="icon">👥</span>Users</a></li>
+          <li><a href="#" onclick="showSection('organizers')"><span class="icon">🏛️</span>Organizers</a></li>
+          <li><a href="#" onclick="showSection('temples')"><span class="icon">🛕</span>Temples</a></li>
+          <li><a href="#" onclick="showSection('slots')"><span class="icon">🕐</span>All Slots</a></li>
+          <li><a href="#" onclick="showSection('bookings')"><span class="icon">🎫</span>All Bookings</a></li>
+          <li><a href="index.html"><span class="icon">🌐</span>View Site</a></li>
+        </ul>
+      </div>
+
+      <!-- Main -->
+      <div class="dashboard-main" style="flex:1;">
+
+        <!-- Analytics -->
+        <div id="section-analytics" class="dashboard-section">
+          <div class="dashboard-header">
+            <h1>System Analytics</h1>
+            <p>Complete overview of the DarshanEase platform</p>
+          </div>
+          <div id="analyticsGrid" class="grid-4 mb-4">
+            <div class="loading-state" style="grid-column:1/-1;"><div class="spinner"></div></div>
+          </div>
+          <div class="grid-2" style="gap:24px;">
+            <div class="glow-card" style="padding:24px;">
+              <h3 style="margin-bottom:16px;">Platform Summary</h3>
+              <div id="platformSummary">
+                <div class="loading-state"><div class="spinner"></div></div>
+              </div>
+            </div>
+            <div class="glow-card" style="padding:24px;">
+              <h3 style="margin-bottom:16px;">Booking Status Distribution</h3>
+              <div id="bookingDistribution">
+                <div class="loading-state"><div class="spinner"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users -->
+        <div id="section-users" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <div class="d-flex justify-between align-center">
+              <div>
+                <h1>Devotee Management</h1>
+                <p>View and manage registered devotees</p>
+              </div>
+            </div>
+          </div>
+          <div class="glow-card" style="padding:0;overflow:hidden;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="usersTable"><tr><td colspan="6" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organizers -->
+        <div id="section-organizers" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <div class="d-flex justify-between align-center">
+              <div>
+                <h1>Organizer Management</h1>
+                <p>Manage temple organizers and their access</p>
+              </div>
+              <button class="btn btn-primary" onclick="openCreateOrgModal()"><i class="fas fa-plus"></i> Add Organizer</button>
+            </div>
+          </div>
+          <div class="glow-card" style="padding:0;overflow:hidden;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="orgTable"><tr><td colspan="6" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Temples -->
+        <div id="section-temples" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <div class="d-flex justify-between align-center">
+              <div>
+                <h1>Temple Management</h1>
+                <p>Manage all temples on the platform</p>
+              </div>
+              <button class="btn btn-primary" onclick="openAddTempleModal()"><i class="fas fa-plus"></i> Add Temple</button>
+            </div>
+          </div>
+          <div class="grid-3" id="adminTemplesList">
+            <div class="loading-state" style="grid-column:1/-1;"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Slots -->
+        <div id="section-slots" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <h1>All Darshan Slots</h1>
+            <p>System-wide slot management</p>
+          </div>
+          <div class="glow-card" style="padding:0;overflow:hidden;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Temple</th><th>Date</th><th>Time</th><th>Pooja</th><th>Seats</th><th>Price</th><th>Special</th></tr></thead>
+                <tbody id="adminSlotsTable"><tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bookings -->
+        <div id="section-bookings" class="dashboard-section hidden">
+          <div class="dashboard-header">
+            <h1>All Bookings</h1>
+            <p>Complete booking history across all temples</p>
+          </div>
+          <div class="glow-card" style="padding:0;overflow:hidden;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Ticket ID</th><th>Devotee</th><th>Temple</th><th>Date</th><th>Devotees</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="adminBookingsTable"><tr><td colspan="7" style="text-align:center;padding:40px;"><div class="spinner" style="margin:auto;"></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Organizer Modal -->
+  <div class="modal-overlay" id="createOrgModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeAllModals()"><i class="fas fa-times"></i></button>
+      <h2 style="margin-bottom:16px;font-size:1.3rem;"><i class="fas fa-user-cog" style="color:var(--primary);"></i> Create Organizer</h2>
+      <form id="createOrgForm">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" id="orgName" class="form-control" placeholder="Temple Organizer Name" required /></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" id="orgEmail" class="form-control" placeholder="organizer@temple.com" required /></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="text" id="orgPhone" class="form-control" placeholder="9876543210" required /></div>
+        <div class="form-group"><label class="form-label">Password</label><input type="password" id="orgPassword" class="form-control" placeholder="Minimum 6 characters" required /></div>
+        <div id="orgCreateAlert"></div>
+        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-user-plus"></i> Create Organizer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Temple Modal -->
+  <div class="modal-overlay" id="addTempleModal">
+    <div class="modal" style="max-width:560px;">
+      <button class="modal-close" onclick="closeAllModals()"><i class="fas fa-times"></i></button>
+      <h2 style="margin-bottom:16px;font-size:1.3rem;"><i class="fas fa-place-of-worship" style="color:var(--primary);"></i> Add Temple</h2>
+      <form id="addTempleForm">
+        <div class="grid-2" style="gap:12px;">
+          <div class="form-group" style="margin-bottom:8px;grid-column:1/-1;"><label class="form-label">Temple Name</label><input type="text" id="tName" class="form-control" placeholder="Temple Name" required /></div>
+          <div class="form-group" style="margin-bottom:8px;"><label class="form-label">Location</label><input type="text" id="tLocation" class="form-control" placeholder="City, State" required /></div>
+          <div class="form-group" style="margin-bottom:8px;"><label class="form-label">Deity</label><input type="text" id="tDeity" class="form-control" placeholder="Main Deity" /></div>
+          <div class="form-group" style="margin-bottom:8px;"><label class="form-label">Darshan Opens</label><input type="time" id="tStart" class="form-control" required /></div>
+          <div class="form-group" style="margin-bottom:8px;"><label class="form-label">Darshan Closes</label><input type="time" id="tEnd" class="form-control" required /></div>
+          <div class="form-group" style="margin-bottom:8px;grid-column:1/-1;"><label class="form-label">Image URL</label><input type="url" id="tImage" class="form-control" placeholder="https://..." /></div>
+          <div class="form-group" style="margin-bottom:8px;grid-column:1/-1;"><label class="form-label">Description</label><textarea id="tDesc" class="form-control" rows="3" placeholder="Temple description..."></textarea></div>
+        </div>
+        <div id="templeCreateAlert"></div>
+        <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-save"></i> Create Temple</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/app.js"></script>
+  <script>
+    let adminTemples = [], adminUsers = [], adminOrgs = [], adminBookings = [], adminSlots = [];
+    const token = localStorage.getItem('token');
+
+    async function initAdmin() {
+      const user = getCurrentUser();
+      if (!token || !user || user.role !== 'admin') { window.location = 'login.html'; return; }
+
+      try {
+        const [analyticsRes, templesRes, usersRes, orgsRes, bookingsRes, slotsRes] = await Promise.all([
+          fetch('/api/admin/analytics', { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch('/api/temples', { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch('/api/admin/users', { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch('/api/admin/organizers', { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch('/api/bookings', { headers: { 'Authorization': 'Bearer ' + token } }),
+          fetch('/api/slots', { headers: { 'Authorization': 'Bearer ' + token } })
+        ]);
+
+        const analyticsData = (await analyticsRes.json()).data || {};
+        adminTemples = (await templesRes.json()).data || [];
+        adminUsers = (await usersRes.json()).data || [];
+        adminOrgs = (await orgsRes.json()).data || [];
+        adminBookings = (await bookingsRes.json()).data || [];
+        adminSlots = (await slotsRes.json()).data || [];
+
+        renderAnalytics(analyticsData);
+        renderUsers();
+        renderOrgs();
+        renderTemples();
+        renderSlots();
+        renderBookings();
+      } catch(e) { showToast('Error loading admin data. Ensure server is running.', 'error'); }
+    }
+
+    function renderAnalytics(a) {
+      document.getElementById('analyticsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value">${a.totalUsers||0}</div><div class="stat-label">Total Devotees</div></div>
+        <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-value">${a.totalOrganizers||0}</div><div class="stat-label">Organizers</div></div>
+        <div class="stat-card"><div class="stat-icon">🛕</div><div class="stat-value">${a.totalTemples||0}</div><div class="stat-label">Temples</div></div>
+        <div class="stat-card"><div class="stat-icon">🎫</div><div class="stat-value">${a.totalBookings||0}</div><div class="stat-label">Total Bookings</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value">${a.confirmedBookings||0}</div><div class="stat-label">Confirmed</div></div>
+        <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-value">${a.cancelledBookings||0}</div><div class="stat-label">Cancelled</div></div>
+        <div class="stat-card"><div class="stat-icon">🕐</div><div class="stat-value">${a.totalSlots||0}</div><div class="stat-label">Active Slots</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">₹${((a.totalRevenue||0)/1000).toFixed(0)}k</div><div class="stat-label">Revenue</div></div>`;
+
+      document.getElementById('platformSummary').innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${[
+            ['Devotees Registered', a.totalUsers||0, a.totalUsers||0, 'var(--primary)'],
+            ['Active Temples', a.totalTemples||0, a.totalTemples||0, 'var(--gold)'],
+            ['Successful Bookings', a.confirmedBookings||0, a.totalBookings||1, 'var(--success)'],
+            ['Total Slots Available', a.totalSlots||0, a.totalSlots||0, 'var(--info)']
+          ].map(([label, val, max, color]) => `
+            <div>
+              <div class="d-flex justify-between text-sm mb-1"><span>${label}</span><span style="color:${color};font-weight:700;">${val}</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${max>0?Math.min(100,(val/max)*100):0}%;background:${color};"></div></div>
+            </div>`).join('')}
+        </div>`;
+
+      const total = (a.totalBookings||0) || 1;
+      const conf = Math.round(((a.confirmedBookings||0)/total)*100);
+      const canc = Math.round(((a.cancelledBookings||0)/total)*100);
+      document.getElementById('bookingDistribution').innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="flex:1;"><div class="d-flex justify-between text-sm mb-1"><span>Confirmed</span><span class="fw-bold" style="color:var(--success);">${conf}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${conf}%;background:var(--success);"></div></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="flex:1;"><div class="d-flex justify-between text-sm mb-1"><span>Cancelled</span><span class="fw-bold" style="color:var(--danger);">${canc}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${canc}%;background:var(--danger);"></div></div></div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;">
+            <span class="badge badge-success">✅ Confirmed: ${a.confirmedBookings||0}</span>
+            <span class="badge badge-danger">❌ Cancelled: ${a.cancelledBookings||0}</span>
+            <span class="badge badge-info">📊 Total: ${a.totalBookings||0}</span>
+          </div>
+        </div>`;
+    }
+
+    function renderUsers() {
+      const tbody = document.getElementById('usersTable');
+      tbody.innerHTML = adminUsers.map(u => `
+        <tr>
+          <td><div class="fw-bold">${u.name}</div></td>
+          <td class="text-muted text-sm">${u.email}</td>
+          <td class="text-muted text-sm">${u.phone||'–'}</td>
+          <td class="text-xs text-muted">${new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
+          <td><span class="badge ${u.isActive?'badge-success':'badge-danger'}">${u.isActive?'Active':'Inactive'}</span></td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteUser('${u._id}')"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No users</td></tr>';
+    }
+
+    function renderOrgs() {
+      const tbody = document.getElementById('orgTable');
+      tbody.innerHTML = adminOrgs.map(o => `
+        <tr>
+          <td><div class="fw-bold">${o.name}</div></td>
+          <td class="text-muted text-sm">${o.email}</td>
+          <td class="text-muted text-sm">${o.phone||'–'}</td>
+          <td class="text-xs text-muted">${new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+          <td><span class="badge ${o.isActive?'badge-info':'badge-danger'}">${o.isActive?'Active':'Inactive'}</span></td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteUser('${o._id}')"><i class="fas fa-user-times"></i></button>
+          </td>
+        </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No organizers</td></tr>';
+    }
+
+    function renderTemples() {
+      document.getElementById('adminTemplesList').innerHTML = adminTemples.map(t => `
+        <div class="glow-card" style="padding:0;overflow:hidden;">
+          <img src="${t.image}" style="width:100%;height:130px;object-fit:cover;"
+               onerror="this.src='https://images.unsplash.com/photo-1621768216002-5ac171d68e1f?w=400';" />
+          <div style="padding:14px;">
+            <div class="fw-bold mb-1">${t.templeName}</div>
+            <div class="text-xs text-muted mb-2">${t.location}</div>
+            <div class="d-flex justify-between align-center">
+              <span class="badge badge-success" style="font-size:0.7rem;">Active</span>
+              <button class="btn btn-danger btn-sm" style="padding:4px 10px;" onclick="deleteTemple('${t._id}')"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>`).join('') || '<div class="empty-state" style="grid-column:1/-1;"><p>No temples yet</p></div>';
+    }
+
+    function renderSlots() {
+      document.getElementById('adminSlotsTable').innerHTML = adminSlots.map(s => `
+        <tr>
+          <td>${s.templeId?.templeName||'–'}</td>
+          <td>${s.date}</td>
+          <td>${s.startTime}–${s.endTime}</td>
+          <td>${s.poojaType}</td>
+          <td class="${s.availableSeats<5?'text-warning':'text-muted'}">${s.availableSeats}/${s.totalSeats}</td>
+          <td style="color:var(--gold);">₹${s.price}</td>
+          <td>${s.isSpecial?'<span class="badge badge-gold">✨ Special</span>':'<span class="text-muted">–</span>'}</td>
+        </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No slots</td></tr>';
+    }
+
+    function renderBookings() {
+      document.getElementById('adminBookingsTable').innerHTML = adminBookings.map(b => `
+        <tr>
+          <td><span style="color:var(--gold);font-family:monospace;font-size:0.78rem;">${b.ticketId||'–'}</span></td>
+          <td>${b.userId?.name||'–'}</td>
+          <td>${b.templeId?.templeName||'–'}</td>
+          <td>${b.slotId?.date||'–'}</td>
+          <td>${b.numDevotees}</td>
+          <td style="color:var(--gold);">₹${b.totalAmount}</td>
+          <td><span class="badge ${b.status==='confirmed'?'badge-success':b.status==='cancelled'?'badge-danger':'badge-info'}">${b.status}</span></td>
+        </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No bookings</td></tr>';
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('Deactivate this user?')) return;
+      const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      const data = await res.json();
+      if (data.success) { showToast('User deactivated', 'success'); initAdmin(); }
+    }
+
+    async function deleteTemple(id) {
+      if (!confirm('Deactivate this temple?')) return;
+      const res = await fetch(`/api/temples/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      const data = await res.json();
+      if (data.success) { showToast('Temple deactivated', 'success'); initAdmin(); }
+    }
+
+    document.getElementById('createOrgForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = { name: document.getElementById('orgName').value, email: document.getElementById('orgEmail').value, phone: document.getElementById('orgPhone').value, password: document.getElementById('orgPassword').value };
+      const res = await fetch('/api/admin/organizers', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success) { showToast('Organizer created!', 'success'); closeAllModals(); initAdmin(); }
+      else document.getElementById('orgCreateAlert').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+    });
+
+    document.getElementById('addTempleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = { templeName: document.getElementById('tName').value, location: document.getElementById('tLocation').value, deity: document.getElementById('tDeity').value, darshanStartTime: document.getElementById('tStart').value, darshanEndTime: document.getElementById('tEnd').value, image: document.getElementById('tImage').value, description: document.getElementById('tDesc').value };
+      const res = await fetch('/api/temples', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success) { showToast('Temple added!', 'success'); closeAllModals(); initAdmin(); }
+      else document.getElementById('templeCreateAlert').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+    });
+
+    function showSection(sec) {
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById('section-' + sec)?.classList.remove('hidden');
+      document.querySelectorAll('.sidebar-nav a').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('onclick')?.includes(sec));
+      });
+    }
+
+    function openCreateOrgModal() { document.getElementById('createOrgModal').classList.add('show'); }
+    function openAddTempleModal() { document.getElementById('addTempleModal').classList.add('show'); }
+    function closeAllModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show')); }
+    function doLogout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location = 'login.html'; }
+
+    window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50));
+    initAdmin();
+  </script>
+</body>
+</html>
